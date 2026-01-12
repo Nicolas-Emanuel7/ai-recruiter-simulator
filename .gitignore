@@ -1,0 +1,47 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Angular cache
+.angular/
+
+# Nest cache
+.cache/
+
+# Uploaded resumes
+uploads/
+tmp/
+
+# API keys
+*.key
+*.pem
