@@ -19,7 +19,8 @@ export class SimulateService {
     file: File,
     jobTitle: string,
     jobDescription: string | undefined,
-    experienceLevel: 'Júnior' | 'Pleno' | 'Sênior'
+    experienceLevel: 'Júnior' | 'Pleno' | 'Sênior',
+    language: 'pt-br' | 'en' = 'pt-br'
   ): Observable<SimulateResponse> {
     const formData = new FormData();
     formData.append('resume', file);
@@ -28,6 +29,7 @@ export class SimulateService {
       formData.append('jobDescription', jobDescription);
     }
     formData.append('experienceLevel', experienceLevel);
+    formData.append('language', language);
 
     return this.http.post<SimulateResponse>(
       `${this.apiUrl}/simulate/upload`,

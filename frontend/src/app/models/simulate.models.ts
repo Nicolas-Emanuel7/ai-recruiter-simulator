@@ -3,6 +3,7 @@ export interface SimulateRequest {
   jobDescription?: string;
   experienceLevel: 'Júnior' | 'Pleno' | 'Sênior';
   resumeText: string;
+  language?: 'pt-br' | 'en';
 }
 
 export interface AtsAnalysis {
