@@ -35,21 +35,44 @@ export class SimulateRequestDto {
   @IsString()
   @IsNotEmpty()
   resumeText: string;
+
+  @ApiPropertyOptional({
+    description: 'Idioma para a resposta (pt-br ou en)',
+    enum: ['pt-br', 'en'],
+    example: 'pt-br',
+    default: 'pt-br',
+  })
+  @IsString()
+  @IsOptional()
+  @IsIn(['pt-br', 'en'])
+  language?: 'pt-br' | 'en';
 }
 
 export class AtsAnalysisDto {
-  @ApiProperty({ description: 'Palavras-chave encontradas no currículo', example: ['React', 'TypeScript'] })
+  @ApiProperty({
+    description: 'Palavras-chave encontradas no currículo',
+    example: ['React', 'TypeScript'],
+  })
   keywordsMatched: string[];
 
-  @ApiProperty({ description: 'Palavras-chave faltantes no currículo', example: ['Node.js', 'AWS'] })
+  @ApiProperty({
+    description: 'Palavras-chave faltantes no currículo',
+    example: ['Node.js', 'AWS'],
+  })
   keywordsMissing: string[];
 }
 
 export class TechnicalEvaluationDto {
-  @ApiProperty({ description: 'Pontos fortes técnicos identificados', example: ['Experiência em React', 'Conhecimento em TypeScript'] })
+  @ApiProperty({
+    description: 'Pontos fortes técnicos identificados',
+    example: ['Experiência em React', 'Conhecimento em TypeScript'],
+  })
   strengths: string[];
 
-  @ApiProperty({ description: 'Riscos técnicos identificados', example: ['Falta de experiência em testes'] })
+  @ApiProperty({
+    description: 'Riscos técnicos identificados',
+    example: ['Falta de experiência em testes'],
+  })
   risks: string[];
 
   @ApiProperty({ description: 'Senioridade percebida', example: 'Pleno' })
@@ -60,7 +83,10 @@ export class HrEvaluationDto {
   @ApiProperty({ description: 'Avaliação da comunicação', example: 'Adequada' })
   communication: string;
 
-  @ApiProperty({ description: 'Avaliação da clareza do currículo', example: 'Moderada' })
+  @ApiProperty({
+    description: 'Avaliação da clareza do currículo',
+    example: 'Moderada',
+  })
   clarity: string;
 
   @ApiProperty({ description: 'Sinais de alerta identificados', example: [] })
@@ -68,14 +94,17 @@ export class HrEvaluationDto {
 }
 
 export class FinalDecisionDto {
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Decisão final da triagem',
     enum: ['AVANÇA', 'TALVEZ', 'REPROVA'],
-    example: 'TALVEZ'
+    example: 'TALVEZ',
   })
   decision: 'AVANÇA' | 'TALVEZ' | 'REPROVA';
 
-  @ApiProperty({ description: 'Justificativa da decisão', example: 'Candidato possui experiência relevante, mas faltam detalhes...' })
+  @ApiProperty({
+    description: 'Justificativa da decisão',
+    example: 'Candidato possui experiência relevante, mas faltam detalhes...',
+  })
   justification: string;
 }
 
@@ -86,7 +115,10 @@ export class SimulateResponseDto {
   @ApiProperty({ description: 'Análise ATS', type: AtsAnalysisDto })
   atsAnalysis: AtsAnalysisDto;
 
-  @ApiProperty({ description: 'Avaliação técnica', type: TechnicalEvaluationDto })
+  @ApiProperty({
+    description: 'Avaliação técnica',
+    type: TechnicalEvaluationDto,
+  })
   technicalEvaluation: TechnicalEvaluationDto;
 
   @ApiProperty({ description: 'Avaliação de RH', type: HrEvaluationDto })
@@ -95,6 +127,9 @@ export class SimulateResponseDto {
   @ApiProperty({ description: 'Decisão final', type: FinalDecisionDto })
   finalDecision: FinalDecisionDto;
 
-  @ApiProperty({ description: 'Sugestões de melhoria para o currículo', example: ['Incluir exemplos de projetos...'] })
+  @ApiProperty({
+    description: 'Sugestões de melhoria para o currículo',
+    example: ['Incluir exemplos de projetos...'],
+  })
   resumeSuggestions: string[];
 }

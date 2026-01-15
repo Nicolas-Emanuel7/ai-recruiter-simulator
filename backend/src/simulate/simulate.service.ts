@@ -5,21 +5,35 @@ import { SimulateRequestDto, SimulateResponseDto } from './simulate.dto';
 @Injectable()
 export class SimulateService {
   private readonly logger = new Logger(SimulateService.name);
-  private readonly llmApiUrl = process.env.LLM_API_URL || 'https://api.openai.com/v1/chat/completions';
+  private readonly llmApiUrl =
+    process.env.LLM_API_URL || 'https://api.openai.com/v1/chat/completions';
   private readonly llmApiKey = process.env.LLM_API_KEY || '';
   private readonly llmModel = process.env.LLM_MODEL || 'gpt-4o-mini';
 
   async simulate(request: SimulateRequestDto): Promise<SimulateResponseDto> {
-    this.logger.log(`Iniciando simulação para vaga: ${request.jobTitle} (${request.experienceLevel})`);
+    const language = request.language || 'pt-br';
+    this.logger.log(
+      `Iniciando simulação para vaga: ${request.jobTitle} (${request.experienceLevel}) [${language}]`,
+    );
     const prompt = this.buildPrompt(request);
-    
+
     try {
-      const response = await this.callLLM(prompt);
+      const response = await this.callLLM(prompt, language);
       const result = this.parseResponse(response);
-      this.logger.log(`Simulação concluída com sucesso. Score ATS: ${result.atsScore}, Decisão: ${result.finalDecision.decision}`);
+      this.logger.log(
+        `Simulação concluída com sucesso. Score ATS: ${result.atsScore}, Decisão: ${result.finalDecision.decision}`,
+      );
       return result;
-    } catch (error) {
-      this.logger.error(`Erro ao processar simulação: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro desconhecido';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+
+      this.logger.error(
+        `Erro ao processar simulação: ${errorMessage}`,
+        errorStack,
+      );
+
       if (error instanceof HttpException) {
         throw error;
       }
@@ -31,9 +45,26 @@ export class SimulateService {
   }
 
   private buildPrompt(request: SimulateRequestDto): string {
-    const { jobTitle, jobDescription, experienceLevel, resumeText } = request;
+    const {
+      jobTitle,
+      jobDescription,
+      experienceLevel,
+      resumeText,
+      language = 'pt-br',
+    } = request;
 
-    return `Você é um sistema de triagem de currículos que simula:
+    const isEnglish = language === 'en';
+    const langInstructions = isEnglish
+      ? 'IMPORTANT: Respond in English. All text, justifications, suggestions, and evaluations must be in English.'
+      : 'IMPORTANT: Responda em Português do Brasil. Todo o texto, justificativas, sugestões e avaliações devem estar em Português do Brasil.';
+
+    const decisionValues = isEnglish
+      ? 'PASS | MAYBE | REJECT'
+      : 'AVANÇA | TALVEZ | REPROVA';
+
+    return `${langInstructions}
+
+Você é um sistema de triagem de currículos que simula:
 1) Um ATS
 2) Um recrutador técnico
 3) Um recrutador de RH
@@ -67,7 +98,7 @@ Gere a resposta em JSON com a seguinte estrutura:
     "redFlags": []
   },
   "finalDecision": {
-    "decision": "AVANÇA | TALVEZ | REPROVA",
+    "decision": "${decisionValues}",
     "justification": ""
   },
   "resumeSuggestions": []
@@ -77,7 +108,10 @@ Seja realista, objetivo e profissional.
 Não elogie excessivamente.`;
   }
 
-  private async callLLM(prompt: string): Promise<string> {
+  private async callLLM(
+    prompt: string,
+    language: string = 'pt-br',
+  ): Promise<string> {
     if (!this.llmApiKey) {
       throw new HttpException(
         'LLM_API_KEY não configurada',
@@ -85,15 +119,28 @@ Não elogie excessivamente.`;
       );
     }
 
+    const systemMessage =
+      language === 'en'
+        ? 'You are an assistant specialized in resume analysis. Always return valid JSON responses. Respond in English.'
+        : 'Você é um assistente especializado em análise de currículos. Sempre retorne respostas válidas em JSON. Responda em Português do Brasil.';
+
     try {
-      const response = await axios.post(
+      interface OpenAIChatResponse {
+        choices: Array<{
+          message?: {
+            content?: string;
+          };
+        }>;
+      }
+
+      const response = await axios.post<OpenAIChatResponse>(
         this.llmApiUrl,
         {
           model: this.llmModel,
           messages: [
             {
               role: 'system',
-              content: 'Você é um assistente especializado em análise de currículos. Sempre retorne respostas válidas em JSON.',
+              content: systemMessage,
             },
             {
               role: 'user',
@@ -112,10 +159,13 @@ Não elogie excessivamente.`;
       );
 
       return response.data.choices[0]?.message?.content || '';
-    } catch (error) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
+        const errorMessage =
+          (error.response?.data as { error?: { message?: string } })?.error
+            ?.message || error.message;
         throw new HttpException(
-          `Erro na API de LLM: ${error.response?.data?.error?.message || error.message}`,
+          `Erro na API de LLM: ${errorMessage}`,
           HttpStatus.BAD_GATEWAY,
         );
       }
@@ -131,22 +181,28 @@ Não elogie excessivamente.`;
         .replace(/```\n?/g, '')
         .trim();
 
-      const parsed = JSON.parse(cleanedText);
+      const parsed: unknown = JSON.parse(cleanedText);
 
       // Validação básica da estrutura
       if (
-        typeof parsed.atsScore !== 'number' ||
-        !parsed.atsAnalysis ||
-        !parsed.technicalEvaluation ||
-        !parsed.hrEvaluation ||
-        !parsed.finalDecision ||
-        !Array.isArray(parsed.resumeSuggestions)
+        !parsed ||
+        typeof parsed !== 'object' ||
+        !('atsScore' in parsed) ||
+        typeof (parsed as { atsScore: unknown }).atsScore !== 'number' ||
+        !('atsAnalysis' in parsed) ||
+        !('technicalEvaluation' in parsed) ||
+        !('hrEvaluation' in parsed) ||
+        !('finalDecision' in parsed) ||
+        !('resumeSuggestions' in parsed) ||
+        !Array.isArray(
+          (parsed as { resumeSuggestions: unknown }).resumeSuggestions,
+        )
       ) {
         throw new Error('Estrutura de resposta inválida');
       }
 
       return parsed as SimulateResponseDto;
-    } catch (error) {
+    } catch {
       throw new HttpException(
         'Erro ao processar resposta da LLM',
         HttpStatus.INTERNAL_SERVER_ERROR,

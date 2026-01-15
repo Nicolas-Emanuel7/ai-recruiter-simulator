@@ -1,15 +1,21 @@
-import { 
-  Controller, 
-  Post, 
-  Body, 
-  HttpCode, 
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
   HttpStatus,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { SimulateService } from './simulate.service';
 import { PdfExtractService } from './pdf-extract.service';
 import { SimulateRequestDto, SimulateResponseDto } from './simulate.dto';
@@ -24,22 +30,23 @@ export class SimulateController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Simula triagem de currículo',
-    description: 'Analisa um currículo para uma vaga específica usando IA, simulando ATS, recrutador técnico e RH'
+    description:
+      'Analisa um currículo para uma vaga específica usando IA, simulando ATS, recrutador técnico e RH',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Análise do currículo realizada com sucesso',
-    type: SimulateResponseDto
+    type: SimulateResponseDto,
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Dados de entrada inválidos' 
+  @ApiResponse({
+    status: 400,
+    description: 'Dados de entrada inválidos',
   })
-  @ApiResponse({ 
-    status: 502, 
-    description: 'Erro na comunicação com a API de LLM' 
+  @ApiResponse({
+    status: 502,
+    description: 'Erro na comunicação com a API de LLM',
   })
   async simulate(
     @Body() request: SimulateRequestDto,
@@ -50,9 +57,10 @@ export class SimulateController {
   @Post('upload')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('resume'))
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Simula triagem de currículo via upload de PDF',
-    description: 'Faz upload de um PDF de currículo e analisa para uma vaga específica'
+    description:
+      'Faz upload de um PDF de currículo e analisa para uma vaga específica',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -84,22 +92,28 @@ export class SimulateController {
       required: ['resume', 'jobTitle', 'experienceLevel'],
     },
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Análise do currículo realizada com sucesso',
-    type: SimulateResponseDto
+    type: SimulateResponseDto,
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Arquivo inválido ou dados de entrada incorretos' 
+  @ApiResponse({
+    status: 400,
+    description: 'Arquivo inválido ou dados de entrada incorretos',
   })
-  @ApiResponse({ 
-    status: 502, 
-    description: 'Erro na comunicação com a API de LLM' 
+  @ApiResponse({
+    status: 502,
+    description: 'Erro na comunicação com a API de LLM',
   })
   async simulateWithPdf(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { jobTitle: string; jobDescription?: string; experienceLevel: 'Júnior' | 'Pleno' | 'Sênior' },
+    @Body()
+    body: {
+      jobTitle: string;
+      jobDescription?: string;
+      experienceLevel: 'Júnior' | 'Pleno' | 'Sênior';
+      language?: 'pt-br' | 'en';
+    },
   ): Promise<SimulateResponseDto> {
     if (!file) {
       throw new BadRequestException('Arquivo PDF é obrigatório');
@@ -110,7 +124,9 @@ export class SimulateController {
     }
 
     // Extrai texto do PDF
-    const resumeText = await this.pdfExtractService.extractTextFromPdf(file.buffer);
+    const resumeText = await this.pdfExtractService.extractTextFromPdf(
+      file.buffer,
+    );
 
     // Cria o request DTO
     const request: SimulateRequestDto = {
@@ -118,6 +134,7 @@ export class SimulateController {
       jobDescription: body.jobDescription,
       experienceLevel: body.experienceLevel,
       resumeText,
+      language: body.language || 'pt-br',
     };
 
     // Chama o serviço de simulação
