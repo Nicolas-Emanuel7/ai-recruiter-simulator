@@ -9,11 +9,13 @@ import {
 } from '@angular/forms';
 import { SimulateService } from '../../services/simulate.service';
 import { SimulateResponse } from '../../models/simulate.models';
+import { TranslateService } from '../../services/translate.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-simulate',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './simulate.component.html',
   styleUrl: './simulate.component.scss',
 })
@@ -23,8 +25,10 @@ export class SimulateComponent implements OnInit {
   selectedFile: File | null = null;
   fileName: string = '';
   isLoading: boolean = false;
+  isLoadingTranslations: boolean = true;
   result: SimulateResponse | null = null;
   error: string | null = null;
+  currentLanguage: string = 'pt-br';
 
   experienceLevels: { value: 'Júnior' | 'Pleno' | 'Sênior'; label: string }[] =
     [
@@ -33,13 +37,111 @@ export class SimulateComponent implements OnInit {
       { value: 'Sênior', label: 'Sênior' },
     ];
 
+  languages = [
+    { code: 'pt-br', name: 'Português', flag: '🇧🇷' },
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+  ];
+  open = false;
+
   constructor(
     private fb: FormBuilder,
-    private simulateService: SimulateService
-  ) {}
+    private simulateService: SimulateService,
+    private translate: TranslateService
+  ) {
+    // Carrega o idioma do localStorage ou usa pt-br como padrão
+    const savedLang = localStorage.getItem('language');
+    this.currentLanguage =
+      savedLang && (savedLang === 'pt-br' || savedLang === 'en')
+        ? savedLang
+        : 'pt-br';
+  }
 
   ngOnInit(): void {
     this.initForm();
+
+    // Subscribe to loading state first
+    this.translate.isLoading.subscribe((loading) => {
+      this.isLoadingTranslations = loading;
+    });
+
+    // Initialize language from localStorage or default to pt-br
+    const savedLang = localStorage.getItem('language');
+    const langToUse =
+      savedLang && (savedLang === 'pt-br' || savedLang === 'en')
+        ? savedLang
+        : 'pt-br';
+
+    if (!savedLang || (savedLang !== 'pt-br' && savedLang !== 'en')) {
+      localStorage.setItem('language', 'pt-br');
+    }
+
+    this.currentLanguage = langToUse;
+
+    // Check if translations are already loaded
+    const currentTranslations = this.translate.getTranslations();
+    if (Object.keys(currentTranslations).length > 0) {
+      // Already loaded, just update
+      this.isLoadingTranslations = false;
+      this.updateExperienceLevels();
+      // Force change detection to update the view
+      setTimeout(() => {
+        this.updateExperienceLevels();
+      }, 0);
+    } else {
+      // Load translations
+      this.translate.use(langToUse).subscribe({
+        next: (translations) => {
+          console.log(
+            '✅ [Translate] Translations loaded:',
+            Object.keys(translations).length,
+            'keys'
+          );
+          this.updateExperienceLevels();
+          // Force change detection after a small delay to ensure pipe updates
+          setTimeout(() => {
+            this.updateExperienceLevels();
+          }, 100);
+        },
+        error: (err) => {
+          console.error('❌ [Translate] Error loading translations:', err);
+          // Fallback to default
+          this.translate.use('pt-br').subscribe(() => {
+            this.updateExperienceLevels();
+          });
+        },
+      });
+    }
+
+    // Subscribe to language changes
+    this.translate.currentLang.subscribe((lang) => {
+      console.log('🔄 [Translate] Language changed to:', lang);
+      this.currentLanguage = lang;
+      this.updateExperienceLevels();
+    });
+  }
+
+  switchLanguage(lang: string): void {
+    this.currentLanguage = lang;
+    this.translate.use(lang).subscribe({
+      next: () => {
+        this.updateExperienceLevels();
+      },
+      error: (err) => {
+        console.error('❌ [Translate] Error switching language:', err);
+        this.isLoadingTranslations = false;
+      },
+    });
+  }
+
+  private updateExperienceLevels(): void {
+    const translations = this.translate.getTranslations();
+    const levels = translations['form']?.['experienceLevels'] || {};
+
+    this.experienceLevels = [
+      { value: 'Júnior', label: levels['junior'] || 'Júnior' },
+      { value: 'Pleno', label: levels['pleno'] || 'Pleno' },
+      { value: 'Sênior', label: levels['senior'] || 'Sênior' },
+    ];
   }
 
   initForm(): void {
@@ -57,12 +159,16 @@ export class SimulateComponent implements OnInit {
       const file = input.files[0];
 
       if (file.type !== 'application/pdf') {
-        this.error = 'Por favor, selecione um arquivo PDF válido.';
+        this.translate.get('errors.invalidPdf').subscribe((msg) => {
+          this.error = msg;
+        });
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        this.error = 'O arquivo é muito grande. Tamanho máximo: 10MB.';
+        this.translate.get('errors.fileTooLarge').subscribe((msg) => {
+          this.error = msg;
+        });
         return;
       }
 
@@ -102,7 +208,9 @@ export class SimulateComponent implements OnInit {
     }
 
     if (this.resumeInputMethod === 'pdf' && !this.selectedFile) {
-      this.error = 'Por favor, selecione um arquivo PDF.';
+      this.translate.get('errors.pdfRequired').subscribe((msg) => {
+        this.error = msg;
+      });
       return;
     }
 
@@ -112,19 +220,23 @@ export class SimulateComponent implements OnInit {
 
     const formValue = this.simulateForm.value;
 
+    const language = this.currentLanguage as 'pt-br' | 'en';
+
     const request$ =
       this.resumeInputMethod === 'pdf'
         ? this.simulateService.simulateWithPdf(
             this.selectedFile!,
             formValue.jobTitle,
             formValue.jobDescription || undefined,
-            formValue.experienceLevel
+            formValue.experienceLevel,
+            language
           )
         : this.simulateService.simulate({
             jobTitle: formValue.jobTitle,
             jobDescription: formValue.jobDescription || undefined,
             experienceLevel: formValue.experienceLevel,
             resumeText: formValue.resumeText,
+            language,
           });
 
     request$.subscribe({
@@ -143,8 +255,13 @@ export class SimulateComponent implements OnInit {
         }, 100);
       },
       error: (err) => {
-        this.error =
-          err.error?.message || 'Erro ao processar simulação. Tente novamente.';
+        if (err.error?.message) {
+          this.error = err.error.message;
+        } else {
+          this.translate.get('errors.processingError').subscribe((msg) => {
+            this.error = msg;
+          });
+        }
         this.isLoading = false;
       },
     });
@@ -172,16 +289,31 @@ export class SimulateComponent implements OnInit {
   }
 
   getDecisionColor(decision: string): string {
-    switch (decision) {
+    const normalizedDecision = decision.toUpperCase();
+    switch (normalizedDecision) {
       case 'AVANÇA':
+      case 'PASS':
         return 'success';
       case 'TALVEZ':
+      case 'MAYBE':
         return 'warning';
       case 'REPROVA':
+      case 'REJECT':
         return 'danger';
       default:
         return 'secondary';
     }
+  }
+
+  translateDecision(decision: string): string {
+    const normalizedDecision = decision.toUpperCase();
+    // Try to translate, but if not found, return original
+    const translation = this.translate.instant(
+      `decisions.${normalizedDecision}`
+    );
+    return translation && translation !== `decisions.${normalizedDecision}`
+      ? translation
+      : decision;
   }
 
   getScoreColor(score: number): string {
