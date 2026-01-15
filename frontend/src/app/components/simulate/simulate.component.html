@@ -1,15 +1,54 @@
 <div class="simulate-container">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoadingTranslations">
+    <div class="loading-spinner">
+      <svg
+        class="spinner"
+        width="40"
+        height="40"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-opacity="0.25"
+        ></circle>
+        <path
+          fill="currentColor"
+          d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      <p *ngIf="currentLanguage === 'pt-br'">Carregando traduções...</p>
+      <p *ngIf="currentLanguage === 'en'">Loading translations...</p>
+    </div>
+  </div>
+
+  <!-- Language Selector -->
+  <div class="language-selector">
+    <select
+      class="language-dropdown"
+      [ngModel]="currentLanguage"
+      (ngModelChange)="switchLanguage($event)"
+      [disabled]="isLoadingTranslations"
+    >
+      <option *ngFor="let lang of languages" [value]="lang.code">
+        {{ lang.flag }} {{ lang.name }}
+      </option>
+    </select>
+  </div>
+
   <!-- Header -->
-  <div class="header">
-    <h1 class="title">Simulador de Triagem de Currículo</h1>
-    <p class="subtitle">
-      Descubra como seu currículo seria avaliado por sistemas automatizados e
-      recrutadores
-    </p>
+  <div class="header" *ngIf="!isLoadingTranslations">
+    <h1 class="title">{{ "title" | translate }}</h1>
+    <p class="subtitle">{{ "subtitle" | translate }}</p>
   </div>
 
   <!-- Form Section -->
-  <div class="form-section">
+  <div class="form-section" *ngIf="!isLoadingTranslations">
     <form
       [formGroup]="simulateForm"
       (ngSubmit)="onSubmit()"
@@ -18,14 +57,15 @@
       <!-- Job Information -->
       <div class="form-group">
         <label for="jobTitle" class="form-label">
-          Título da Vaga <span class="required">*</span>
+          {{ "form.jobTitle" | translate }}
+          <span class="required">{{ "form.required" | translate }}</span>
         </label>
         <input
           type="text"
           id="jobTitle"
           formControlName="jobTitle"
           class="form-input"
-          placeholder="Ex: Frontend Developer"
+          [placeholder]="'form.jobTitlePlaceholder' | translate"
           [class.error]="
             simulateForm.get('jobTitle')?.invalid &&
             simulateForm.get('jobTitle')?.touched
@@ -38,26 +78,27 @@
             simulateForm.get('jobTitle')?.touched
           "
         >
-          Título da vaga é obrigatório (mínimo 3 caracteres)
+          {{ "form.jobTitleRequired" | translate }}
         </div>
       </div>
 
       <div class="form-group">
         <label for="jobDescription" class="form-label">
-          Descrição da Vaga
+          {{ "form.jobDescription" | translate }}
         </label>
         <textarea
           id="jobDescription"
           formControlName="jobDescription"
           class="form-textarea"
           rows="4"
-          placeholder="Descreva os requisitos e responsabilidades da vaga..."
+          [placeholder]="'form.jobDescriptionPlaceholder' | translate"
         ></textarea>
       </div>
 
       <div class="form-group">
         <label for="experienceLevel" class="form-label">
-          Nível de Experiência <span class="required">*</span>
+          {{ "form.experienceLevel" | translate }}
+          <span class="required">{{ "form.required" | translate }}</span>
         </label>
         <select
           id="experienceLevel"
@@ -73,7 +114,8 @@
       <!-- Resume Input Method Toggle -->
       <div class="form-group">
         <label class="form-label">
-          Como deseja enviar o currículo? <span class="required">*</span>
+          {{ "form.resumeInputMethod" | translate }}
+          <span class="required">{{ "form.required" | translate }}</span>
         </label>
         <div class="input-method-toggle">
           <button
@@ -98,7 +140,7 @@
               <line x1="16" y1="17" x2="8" y2="17"></line>
               <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
-            Colar Texto
+            {{ "form.pasteText" | translate }}
           </button>
           <button
             type="button"
@@ -119,7 +161,7 @@
               ></path>
               <polyline points="14 2 14 8 20 8"></polyline>
             </svg>
-            Upload PDF
+            {{ "form.uploadPdf" | translate }}
           </button>
         </div>
       </div>
@@ -127,14 +169,15 @@
       <!-- Resume Text Input -->
       <div class="form-group" *ngIf="resumeInputMethod === 'text'">
         <label for="resumeText" class="form-label">
-          Texto do Currículo <span class="required">*</span>
+          {{ "form.resumeText" | translate }}
+          <span class="required">{{ "form.required" | translate }}</span>
         </label>
         <textarea
           id="resumeText"
           formControlName="resumeText"
           class="form-textarea"
           rows="10"
-          placeholder="Cole aqui o texto completo do seu currículo..."
+          [placeholder]="'form.resumeTextPlaceholder' | translate"
           [class.error]="
             simulateForm.get('resumeText')?.invalid &&
             simulateForm.get('resumeText')?.touched
@@ -147,14 +190,15 @@
             simulateForm.get('resumeText')?.touched
           "
         >
-          Texto do currículo é obrigatório
+          {{ "form.resumeTextRequired" | translate }}
         </div>
       </div>
 
       <!-- PDF Upload Input -->
       <div class="form-group" *ngIf="resumeInputMethod === 'pdf'">
         <label for="pdfFile" class="form-label">
-          Arquivo PDF do Currículo <span class="required">*</span>
+          {{ "form.pdfFile" | translate }}
+          <span class="required">{{ "form.required" | translate }}</span>
         </label>
         <div class="file-upload-area" [class.has-file]="selectedFile">
           <input
@@ -178,9 +222,9 @@
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
             <p class="upload-text">
-              Clique para selecionar ou arraste um arquivo PDF
+              {{ "form.uploadText" | translate }}
             </p>
-            <p class="upload-hint">Tamanho máximo: 10MB</p>
+            <p class="upload-hint">{{ "form.uploadHint" | translate }}</p>
           </div>
           <div class="file-selected" *ngIf="selectedFile">
             <svg
@@ -246,7 +290,7 @@
             (resumeInputMethod === 'pdf' && !selectedFile)
           "
         >
-          <span *ngIf="!isLoading">Analisar Currículo</span>
+          <span *ngIf="!isLoading">{{ "form.submit" | translate }}</span>
           <span *ngIf="isLoading" class="loading">
             <svg
               class="spinner"
@@ -268,7 +312,7 @@
                 d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Processando...
+            {{ "form.processing" | translate }}
           </span>
         </button>
         <button
@@ -277,15 +321,19 @@
           (click)="resetForm()"
           [disabled]="isLoading"
         >
-          Limpar
+          {{ "form.clear" | translate }}
         </button>
       </div>
     </form>
   </div>
 
   <!-- Results Section -->
-  <div id="result-section" class="results-section" *ngIf="result">
-    <h2 class="results-title">Resultado da Análise</h2>
+  <div
+    id="result-section"
+    class="results-section"
+    *ngIf="result && !isLoadingTranslations"
+  >
+    <h2 class="results-title">{{ "results.title" | translate }}</h2>
 
     <!-- Score Card -->
     <div class="score-card">
@@ -294,13 +342,12 @@
         [class]="'score-' + getScoreColor(result.atsScore)"
       >
         <span class="score-value">{{ result.atsScore }}</span>
-        <span class="score-label">ATS Score</span>
+        <span class="score-label">{{ "results.atsScore" | translate }}</span>
       </div>
       <div class="score-info">
-        <h3>Pontuação ATS</h3>
+        <h3>{{ "results.atsScore" | translate }}</h3>
         <p>
-          Quanto maior a pontuação, melhor a compatibilidade com sistemas de
-          triagem automatizados.
+          {{ "results.atsScoreDescription" | translate }}
         </p>
       </div>
     </div>
@@ -311,8 +358,10 @@
       [class]="'decision-' + getDecisionColor(result.finalDecision.decision)"
     >
       <div class="decision-header">
-        <h3>Decisão Final</h3>
-        <span class="decision-badge">{{ result.finalDecision.decision }}</span>
+        <h3>{{ "results.finalDecision" | translate }}</h3>
+        <span class="decision-badge">{{
+          translateDecision(result.finalDecision.decision)
+        }}</span>
       </div>
       <p class="decision-justification">
         {{ result.finalDecision.justification }}
@@ -335,11 +384,11 @@
             d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
           ></path>
         </svg>
-        Análise ATS
+        {{ "results.atsAnalysis" | translate }}
       </h3>
       <div class="keywords-section">
         <div class="keywords-group">
-          <h4>Palavras-chave Encontradas</h4>
+          <h4>{{ "results.keywordsMatched" | translate }}</h4>
           <div class="keywords-list">
             <span
               class="keyword-tag matched"
@@ -351,12 +400,12 @@
               class="no-keywords"
               *ngIf="result.atsAnalysis.keywordsMatched.length === 0"
             >
-              Nenhuma palavra-chave encontrada
+              {{ "results.noKeywordsFound" | translate }}
             </span>
           </div>
         </div>
         <div class="keywords-group">
-          <h4>Palavras-chave Faltantes</h4>
+          <h4>{{ "results.keywordsMissing" | translate }}</h4>
           <div class="keywords-list">
             <span
               class="keyword-tag missing"
@@ -368,7 +417,7 @@
               class="no-keywords"
               *ngIf="result.atsAnalysis.keywordsMissing.length === 0"
             >
-              Todas as palavras-chave relevantes foram encontradas
+              {{ "results.allKeywordsFound" | translate }}
             </span>
           </div>
         </div>
@@ -388,11 +437,11 @@
         >
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
         </svg>
-        Avaliação Técnica
+        {{ "results.technicalEvaluation" | translate }}
       </h3>
       <div class="evaluation-content">
         <div class="evaluation-item">
-          <h4>Senioridade Percebida</h4>
+          <h4>{{ "results.perceivedSeniority" | translate }}</h4>
           <span class="seniority-badge">{{
             result.technicalEvaluation.perceivedSeniority
           }}</span>
@@ -401,7 +450,7 @@
           class="evaluation-item"
           *ngIf="result.technicalEvaluation.strengths.length > 0"
         >
-          <h4>Pontos Fortes</h4>
+          <h4>{{ "results.strengths" | translate }}</h4>
           <ul class="evaluation-list strengths">
             <li *ngFor="let strength of result.technicalEvaluation.strengths">
               {{ strength }}
@@ -412,7 +461,7 @@
           class="evaluation-item"
           *ngIf="result.technicalEvaluation.risks.length > 0"
         >
-          <h4>Riscos Identificados</h4>
+          <h4>{{ "results.risks" | translate }}</h4>
           <ul class="evaluation-list risks">
             <li *ngFor="let risk of result.technicalEvaluation.risks">
               {{ risk }}
@@ -438,17 +487,17 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
-        Avaliação de RH
+        {{ "results.hrEvaluation" | translate }}
       </h3>
       <div class="evaluation-content">
         <div class="evaluation-item">
-          <h4>Comunicação</h4>
+          <h4>{{ "results.communication" | translate }}</h4>
           <span class="evaluation-value">{{
             result.hrEvaluation.communication
           }}</span>
         </div>
         <div class="evaluation-item">
-          <h4>Clareza</h4>
+          <h4>{{ "results.clarity" | translate }}</h4>
           <span class="evaluation-value">{{
             result.hrEvaluation.clarity
           }}</span>
@@ -457,7 +506,7 @@
           class="evaluation-item"
           *ngIf="result.hrEvaluation.redFlags.length > 0"
         >
-          <h4>Sinais de Alerta</h4>
+          <h4>{{ "results.redFlags" | translate }}</h4>
           <ul class="evaluation-list red-flags">
             <li *ngFor="let flag of result.hrEvaluation.redFlags">
               {{ flag }}
@@ -482,7 +531,7 @@
           <line x1="12" y1="16" x2="12" y2="12"></line>
           <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
-        Sugestões de Melhoria
+        {{ "results.suggestions" | translate }}
       </h3>
       <ul class="suggestions-list">
         <li *ngFor="let suggestion of result.resumeSuggestions">
