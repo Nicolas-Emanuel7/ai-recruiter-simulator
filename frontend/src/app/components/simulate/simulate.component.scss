@@ -3,6 +3,71 @@
   margin: 0 auto;
   padding: 2rem 1rem;
   min-height: 100vh;
+  position: relative;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+
+  .loading-spinner {
+    text-align: center;
+
+    .spinner {
+      animation: spin 1s linear infinite;
+      color: #4a90e2;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #666;
+      font-size: 0.9375rem;
+      margin: 0;
+    }
+  }
+}
+
+.language-selector {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+
+  .language-dropdown {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+
+    &:hover {
+      border-color: #4a90e2;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+  }
 }
 
 .header {
@@ -304,6 +369,15 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -634,6 +708,20 @@
 @media (max-width: 768px) {
   .simulate-container {
     padding: 1rem;
+    padding-top: 4rem;
+  }
+
+  .language-selector {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    position: fixed;
+
+    .language-dropdown {
+      width: 100%;
+      max-width: 200px;
+      margin-left: auto;
+    }
   }
 
   .header .title {
