@@ -59,6 +59,24 @@ $ npm run test:cov
 
 ## Deployment
 
+### Deploy no Railway
+
+Este projeto está configurado para deploy no Railway. Para instruções detalhadas, consulte [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md).
+
+**Resumo rápido:**
+1. Conecte o repositório ao Railway
+2. Configure as variáveis de ambiente (especialmente `LLM_API_KEY`)
+3. O deploy será feito automaticamente
+
+**Variáveis de ambiente necessárias:**
+- `LLM_API_KEY` (obrigatória) - Chave de API do LLM
+- `PORT` (opcional) - Porta do servidor (padrão: 3000)
+- `FRONTEND_URL` (opcional) - URL do frontend para CORS
+- `LLM_API_URL` (opcional) - URL da API de LLM
+- `LLM_MODEL` (opcional) - Modelo de LLM a ser usado
+
+### Outras opções de deploy
+
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
 If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
