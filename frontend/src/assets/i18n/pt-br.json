@@ -1,0 +1,61 @@
+{
+  "title": "Simulador de Triagem de Currículo",
+  "subtitle": "Descubra como seu currículo seria avaliado por sistemas automatizados e recrutadores",
+  "form": {
+    "jobTitle": "Título da Vaga",
+    "jobTitlePlaceholder": "Ex: Frontend Developer",
+    "jobTitleRequired": "Título da vaga é obrigatório (mínimo 3 caracteres)",
+    "jobDescription": "Descrição da Vaga",
+    "jobDescriptionPlaceholder": "Descreva os requisitos e responsabilidades da vaga...",
+    "experienceLevel": "Nível de Experiência",
+    "experienceLevels": {
+      "junior": "Júnior",
+      "pleno": "Pleno",
+      "senior": "Sênior"
+    },
+    "resumeInputMethod": "Como deseja enviar o currículo?",
+    "pasteText": "Colar Texto",
+    "uploadPdf": "Upload PDF",
+    "resumeText": "Texto do Currículo",
+    "resumeTextPlaceholder": "Cole aqui o texto completo do seu currículo...",
+    "resumeTextRequired": "Texto do currículo é obrigatório",
+    "pdfFile": "Arquivo PDF do Currículo",
+    "uploadText": "Clique para selecionar ou arraste um arquivo PDF",
+    "uploadHint": "Tamanho máximo: 10MB",
+    "required": "*",
+    "submit": "Analisar Currículo",
+    "processing": "Processando...",
+    "clear": "Limpar"
+  },
+  "errors": {
+    "invalidPdf": "Por favor, selecione um arquivo PDF válido.",
+    "fileTooLarge": "O arquivo é muito grande. Tamanho máximo: 10MB.",
+    "pdfRequired": "Por favor, selecione um arquivo PDF.",
+    "processingError": "Erro ao processar simulação. Tente novamente."
+  },
+  "results": {
+    "title": "Resultado da Análise",
+    "atsScore": "Pontuação ATS",
+    "atsScoreDescription": "Quanto maior a pontuação, melhor a compatibilidade com sistemas de triagem automatizados.",
+    "finalDecision": "Decisão Final",
+    "atsAnalysis": "Análise ATS",
+    "keywordsMatched": "Palavras-chave Encontradas",
+    "keywordsMissing": "Palavras-chave Faltantes",
+    "noKeywordsFound": "Nenhuma palavra-chave encontrada",
+    "allKeywordsFound": "Todas as palavras-chave relevantes foram encontradas",
+    "technicalEvaluation": "Avaliação Técnica",
+    "perceivedSeniority": "Senioridade Percebida",
+    "strengths": "Pontos Fortes",
+    "risks": "Riscos Identificados",
+    "hrEvaluation": "Avaliação de RH",
+    "communication": "Comunicação",
+    "clarity": "Clareza",
+    "redFlags": "Sinais de Alerta",
+    "suggestions": "Sugestões de Melhoria"
+  },
+  "decisions": {
+    "AVANÇA": "AVANÇA",
+    "TALVEZ": "TALVEZ",
+    "REPROVA": "REPROVA"
+  }
+}

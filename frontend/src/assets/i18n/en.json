@@ -1,0 +1,61 @@
+{
+  "title": "Resume Screening Simulator",
+  "subtitle": "Discover how your resume would be evaluated by automated systems and recruiters",
+  "form": {
+    "jobTitle": "Job Title",
+    "jobTitlePlaceholder": "Ex: Frontend Developer",
+    "jobTitleRequired": "Job title is required (minimum 3 characters)",
+    "jobDescription": "Job Description",
+    "jobDescriptionPlaceholder": "Describe the requirements and responsibilities of the position...",
+    "experienceLevel": "Experience Level",
+    "experienceLevels": {
+      "junior": "Junior",
+      "pleno": "Mid-Level",
+      "senior": "Senior"
+    },
+    "resumeInputMethod": "How would you like to submit your resume?",
+    "pasteText": "Paste Text",
+    "uploadPdf": "Upload PDF",
+    "resumeText": "Resume Text",
+    "resumeTextPlaceholder": "Paste the complete text of your resume here...",
+    "resumeTextRequired": "Resume text is required",
+    "pdfFile": "Resume PDF File",
+    "uploadText": "Click to select or drag a PDF file",
+    "uploadHint": "Maximum size: 10MB",
+    "required": "*",
+    "submit": "Analyze Resume",
+    "processing": "Processing...",
+    "clear": "Clear"
+  },
+  "errors": {
+    "invalidPdf": "Please select a valid PDF file.",
+    "fileTooLarge": "The file is too large. Maximum size: 10MB.",
+    "pdfRequired": "Please select a PDF file.",
+    "processingError": "Error processing simulation. Please try again."
+  },
+  "results": {
+    "title": "Analysis Result",
+    "atsScore": "ATS Score",
+    "atsScoreDescription": "The higher the score, the better the compatibility with automated screening systems.",
+    "finalDecision": "Final Decision",
+    "atsAnalysis": "ATS Analysis",
+    "keywordsMatched": "Keywords Found",
+    "keywordsMissing": "Missing Keywords",
+    "noKeywordsFound": "No keywords found",
+    "allKeywordsFound": "All relevant keywords were found",
+    "technicalEvaluation": "Technical Evaluation",
+    "perceivedSeniority": "Perceived Seniority",
+    "strengths": "Strengths",
+    "risks": "Identified Risks",
+    "hrEvaluation": "HR Evaluation",
+    "communication": "Communication",
+    "clarity": "Clarity",
+    "redFlags": "Red Flags",
+    "suggestions": "Improvement Suggestions"
+  },
+  "decisions": {
+    "AVANÇA": "PASS",
+    "TALVEZ": "MAYBE",
+    "REPROVA": "REJECT"
+  }
+}
