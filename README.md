@@ -296,22 +296,6 @@ Todas as mensagens de erro são claras e ajudam no debug.
 
 ---
 
-## 🎨 Frontend
-
-*Em desenvolvimento...*
-
----
-
-## 🚀 Próximos Passos
-
-- [ ] Implementação do frontend (Angular)
-- [ ] Interface para upload de PDF
-- [ ] Visualização dos resultados
-- [ ] Histórico de simulações
-- [ ] Melhorias no prompt da IA
-
----
-
 ## 📝 Licença
 
 Este projeto é de uso pessoal/educacional.
