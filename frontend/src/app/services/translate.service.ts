@@ -41,12 +41,10 @@ export class TranslateService {
       return of(this.translations[lang]);
     }
 
-    console.log(`🔄 [TranslateService] Loading language: ${lang}`);
     const url = `/assets/i18n/${lang}.json`;
 
     return this.http.get<TranslationObject>(url).pipe(
       tap((translations) => {
-        console.log(`✅ [TranslateService] Loaded translations for ${lang}:`, translations);
         this.translations[lang] = translations;
       }),
       catchError((error) => {
@@ -62,7 +60,6 @@ export class TranslateService {
    * Troca o idioma atual
    */
   use(lang: string): Observable<TranslationObject> {
-    console.log(`🔄 [TranslateService] Switching to language: ${lang}`);
     localStorage.setItem('language', lang);
     this.currentLang$.next(lang);
     this.isLoading$.next(true);
@@ -99,7 +96,9 @@ export class TranslateService {
 
     if (this.translations[lang]) {
       const translation = this.getTranslation(key, lang);
-      const result = params ? this.interpolate(translation, params) : translation;
+      const result = params
+        ? this.interpolate(translation, params)
+        : translation;
       return of(result);
     }
 
@@ -160,7 +159,10 @@ export class TranslateService {
   /**
    * Interpola parâmetros na tradução
    */
-  private interpolate(translation: string, params: { [key: string]: any }): string {
+  private interpolate(
+    translation: string,
+    params: { [key: string]: any }
+  ): string {
     let result = translation;
     for (const key in params) {
       result = result.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);

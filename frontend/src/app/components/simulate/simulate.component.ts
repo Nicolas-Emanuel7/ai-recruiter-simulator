@@ -91,11 +91,6 @@ export class SimulateComponent implements OnInit {
       // Load translations
       this.translate.use(langToUse).subscribe({
         next: (translations) => {
-          console.log(
-            '✅ [Translate] Translations loaded:',
-            Object.keys(translations).length,
-            'keys'
-          );
           this.updateExperienceLevels();
           // Force change detection after a small delay to ensure pipe updates
           setTimeout(() => {
@@ -114,7 +109,6 @@ export class SimulateComponent implements OnInit {
 
     // Subscribe to language changes
     this.translate.currentLang.subscribe((lang) => {
-      console.log('🔄 [Translate] Language changed to:', lang);
       this.currentLanguage = lang;
       this.updateExperienceLevels();
     });
