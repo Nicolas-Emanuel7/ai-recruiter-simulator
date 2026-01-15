@@ -708,19 +708,20 @@
 @media (max-width: 768px) {
   .simulate-container {
     padding: 1rem;
-    padding-top: 4rem;
   }
 
   .language-selector {
-    top: 0.5rem;
-    right: 0.5rem;
-    left: 0.5rem;
-    position: fixed;
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: flex-end;
 
     .language-dropdown {
       width: 100%;
       max-width: 200px;
-      margin-left: auto;
     }
   }
 
